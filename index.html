@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Edge Personas & Workflow Evolution</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState } = React;
+
+    function EdgePersonasWorkflow() {
+      const [activeRelease, setActiveRelease] = useState('q3-2025');
+      const [activePersona, setActivePersona] = useState(null);
+
+      const releases = [
+        { id: 'q3-2025', label: 'Q3 2025', name: 'Rebate Optimization', color: 'bg-blue-500' },
+        { id: 'q1-2026', label: 'Q1 2026', name: '+ Price Optimization', color: 'bg-green-500' },
+        { id: 'q2-2026', label: 'Q2 2026', name: 'Trade Agreement Optimization', color: 'bg-purple-500' },
+        { id: 'q3-2026-net', label: 'Q3 2026', name: 'Strategy Simulation', color: 'bg-indigo-500' },
+        { id: 'q3-2026', label: 'Q3 2026', name: '+ Rebate Management', color: 'bg-blue-600' },
+        { id: 'q4-2026', label: 'Q4 2026', name: '+ Price Management', color: 'bg-green-600' },
+        { id: 'q1-2027', label: 'Q1 2027', name: '+ Quote Mgmt & Opt', color: 'bg-amber-500' },
+        { id: 'q2-2027', label: 'Q2 2027', name: 'Autonomous Negotiations', color: 'bg-rose-500' },
+      ];
+
+      const personas = {
+        rebateManager: {
+          id: 'rebateManager', title: 'Rebate Manager', aka: 'Channel Manager, Trade Manager', icon: '📊', color: 'blue',
+          description: 'Owns rebate program design, vendor negotiations, and ensuring programs drive desired behaviors.',
+          painPoints: ['Spreadsheet-based ROI modeling is time-consuming and error-prone', 'Hard to predict program outcomes before committing', 'Manual process to implement approved programs into ERP/rebate system', 'Limited visibility into program performance until quarter-end'],
+          goals: ['Maximize rebate ROI', 'Reduce program design cycle time', 'Improve forecast accuracy'],
+          activeFrom: 'q3-2025'
+        },
+        pricingManager: {
+          id: 'pricingManager', title: 'Pricing Manager', aka: 'Pricing Analyst, Revenue Manager', icon: '💰', color: 'green',
+          description: 'Manages list prices, customer-specific pricing agreements, and pricing rules/policies.',
+          painPoints: ['Reactive pricing changes based on gut feel, not data', 'Customer-specific pricing scattered across systems', 'No visibility into margin erosion until too late', 'Manual process to update pricing in ERP/CPQ'],
+          goals: ['Optimize margins', 'Reduce pricing leakage', 'Respond faster to market changes'],
+          activeFrom: 'q1-2026'
+        },
+        commercialDirector: {
+          id: 'commercialDirector', title: 'Commercial Director', aka: 'VP Commercial, Revenue Director', icon: '🎯', color: 'purple',
+          description: 'Oversees both pricing and rebate strategy. Responsible for overall commercial performance.',
+          painPoints: ['Pricing and rebate teams operate in silos', 'No unified view of total customer deal economics', 'Hard to balance short-term margin vs. long-term relationships', 'Approval bottleneck for complex deals'],
+          goals: ['Unified commercial strategy', 'Optimize total deal value', 'Faster deal cycles'],
+          activeFrom: 'q2-2026'
+        },
+        financeController: {
+          id: 'financeController', title: 'Finance / Controller', aka: 'FP&A, Rebate Accountant', icon: '📈', color: 'slate',
+          description: 'Manages rebate accruals, claims processing, and financial reporting on commercial programs.',
+          painPoints: ['Accrual estimates often miss actuals', 'Manual reconciliation of claims', 'Limited visibility into rebate exposure', 'Audit trail gaps'],
+          goals: ['Accurate accruals', 'Streamlined claims', 'Clear audit trail'],
+          activeFrom: 'q3-2026'
+        },
+        salesRep: {
+          id: 'salesRep', title: 'Sales Rep', aka: 'Account Executive, Account Manager', icon: '🤝', color: 'amber',
+          description: 'Frontline seller who configures quotes and negotiates deals with customers.',
+          painPoints: ['Unsure what discount/rebate to offer to win', 'Back-and-forth with pricing/rebate teams slows deals', 'No visibility into customer profitability', 'Leaving money on the table or over-discounting'],
+          goals: ['Win more deals', 'Faster quote turnaround', 'Confident pricing decisions'],
+          activeFrom: 'q1-2027'
+        }
+      };
+
+      const workflows = {
+        'q3-2025': {
+          title: 'Rebate Optimization', subtitle: 'Intelligence layer for rebate program design',
+          layers: { rebateOpt: true, priceOpt: false, dealOpt: false, networkOpt: false, rebateMgmt: false, priceMgmt: false, quoteMgmt: false, autoNeg: false },
+          flows: [{
+            persona: 'rebateManager',
+            steps: [
+              { type: 'opt', action: 'Reviews AI-generated rebate recommendations', detail: 'Edge analyzes historical data, suggests optimal program structures' },
+              { type: 'opt', action: 'Runs scenario modeling (optional)', detail: 'Tests different tier structures, thresholds, rates' },
+              { type: 'opt', action: 'Reviews ROI forecast', detail: 'Sees projected cost, volume lift, margin impact' },
+              { type: 'mgmt', action: 'Submits for approval', detail: 'Workflow routes to approvers based on value/risk' },
+              { type: 'mgmt', action: 'Agreement approved', detail: 'Approver signs off in Edge' },
+              { type: 'manual', action: 'Exports agreement', detail: 'Downloads PDF/API export' },
+              { type: 'external', action: 'Implements in Enable', detail: 'Rebate agreement entered into Enable for execution', system: 'enable' },
+              { type: 'external', action: 'Enable tracks & pays rebates', detail: 'Transactions tracked, accruals posted, claims processed', system: 'enable' },
+            ]
+          }],
+          keyCapabilities: ['AI-powered rebate program design', 'ROI modeling & scenario planning', 'Performance forecasting', 'Approval workflows', 'API export & PDF download'],
+          manualHandoff: 'User exports approved agreement and manually implements in Enable'
+        },
+        'q1-2026': {
+          title: 'Rebate + Price Optimization', subtitle: 'Add list price and customer-specific pricing intelligence',
+          layers: { rebateOpt: true, priceOpt: true, dealOpt: false, networkOpt: false, rebateMgmt: false, priceMgmt: false, quoteMgmt: false, autoNeg: false },
+          flows: [
+            { persona: 'rebateManager', steps: [
+              { type: 'opt', action: 'Reviews rebate recommendations', detail: 'Same flow as Q3 - AI suggests program structures' },
+              { type: 'opt', action: 'Scenario modeling & ROI review (optional)', detail: 'Models outcomes before committing' },
+              { type: 'mgmt', action: 'Approval workflow', detail: 'Routes to rebate approvers' },
+              { type: 'manual', action: 'Exports agreement', detail: 'Downloads PDF/API export' },
+              { type: 'external', action: 'Implements in Enable', detail: 'Rebate agreement entered into Enable', system: 'enable' },
+              { type: 'external', action: 'Enable executes rebate lifecycle', detail: 'Tracking, accruals, claims', system: 'enable' },
+            ]},
+            { persona: 'pricingManager', steps: [
+              { type: 'opt', action: 'Reviews price performance analysis', detail: 'Edge identifies margin leakage, underpriced segments' },
+              { type: 'opt', action: 'Reviews pricing recommendations', detail: 'Suggested changes to list prices, customer rules' },
+              { type: 'opt', action: 'Runs what-if scenarios', detail: 'Models impact of price changes on volume/margin' },
+              { type: 'mgmt', action: 'Submits for approval', detail: 'Routes to pricing approvers' },
+              { type: 'mgmt', action: 'Changes approved', detail: 'Approver signs off' },
+              { type: 'manual', action: 'Exports pricing changes', detail: 'Downloads pricing updates' },
+              { type: 'external', action: 'Implements in Flintfox', detail: 'Price rules updated in Flintfox', system: 'flintfox' },
+              { type: 'external', action: 'Flintfox applies prices', detail: 'Prices applied at transaction time', system: 'flintfox' },
+            ]}
+          ],
+          keyCapabilities: ['List price optimization', 'Customer-specific pricing analysis', 'Pricing rule recommendations', 'Separate approval workflows for pricing vs rebates'],
+          manualHandoff: 'Users export to Enable (rebates) and Flintfox (pricing) separately',
+          note: 'Pricing and Rebate workflows run independently - no unified view yet'
+        },
+        'q2-2026': {
+          title: 'Trade Agreement Optimization', subtitle: 'Optimizing price and rebates together as a unified commercial deal',
+          layers: { rebateOpt: true, priceOpt: true, dealOpt: true, networkOpt: false, rebateMgmt: false, priceMgmt: false, quoteMgmt: false, autoNeg: false },
+          flows: [
+            { persona: 'commercialDirector', steps: [
+              { type: 'opt', action: 'Reviews unified deal recommendations', detail: 'Edge optimizes price + rebates together for each customer/segment' },
+              { type: 'opt', action: 'Sees total deal economics', detail: 'Net price, rebate cost, true margin view' },
+              { type: 'opt', action: 'Prepares commercial deal for supplier', detail: 'Sets constraints, objectives, priorities' },
+              { type: 'mgmt', action: 'Routes to specialist teams', detail: 'Pricing portion → Pricing team, Rebate portion → Rebate team' },
+            ]},
+            { persona: 'rebateManager', steps: [
+              { type: 'mgmt', action: 'Reviews rebate portion of deal', detail: 'Sees recommendation in context of full deal' },
+              { type: 'mgmt', action: 'Prepares rebate changes', detail: 'Finalizes rebate terms for their portion' },
+              { type: 'mgmt', action: 'Marks rebate portion ready', detail: 'Signs off - waiting for pricing team' },
+            ]},
+            { persona: 'pricingManager', steps: [
+              { type: 'mgmt', action: 'Reviews pricing portion of deal', detail: 'Sees recommendation in context of full deal' },
+              { type: 'mgmt', action: 'Prepares pricing changes', detail: 'Finalizes pricing terms for their portion' },
+              { type: 'mgmt', action: 'Marks pricing portion ready', detail: 'Signs off - waiting for rebate team' },
+            ]},
+            { persona: 'commercialDirector', steps: [
+              { type: 'mgmt', action: 'Reviews consolidated deal', detail: 'Both teams have prepared their portions' },
+              { type: 'mgmt', action: 'Sends full commercial deal to supplier', detail: 'Complete deal package: pricing + rebates sent to supplier' },
+              { type: 'mgmt', action: 'Supplier accepts deal', detail: 'Supplier reviews and agrees to commercial terms' },
+            ]},
+            { persona: 'rebateManager', steps: [
+              { type: 'manual', action: 'Exports rebate agreement', detail: 'Downloads approved rebate terms' },
+              { type: 'external', action: 'Implements in Enable', detail: 'Rebate terms entered into Enable', system: 'enable' },
+            ]},
+            { persona: 'pricingManager', steps: [
+              { type: 'manual', action: 'Exports pricing changes', detail: 'Downloads approved pricing terms' },
+              { type: 'external', action: 'Implements in Flintfox', detail: 'Price rules updated in Flintfox', system: 'flintfox' },
+            ]}
+          ],
+          keyCapabilities: ['Unified price + rebate optimization', 'Total trade agreement economics view', 'Multi-team approval workflows', 'Consolidated deal sent to supplier', 'Long-term trade agreement structuring (price + discounts + rebates)'],
+          manualHandoff: 'After supplier accepts, export to Enable (rebates) and Flintfox (pricing)',
+          openQuestion: 'Who owns the unified trade agreement review? Commercial Director as orchestrator, with specialist approval?'
+        },
+        'q3-2026-net': {
+          title: 'Strategy Simulation', subtitle: 'Instead of Edge recommending changes, users start with their own strategy and simulate the commercial impact across pricing and rebates',
+          layers: { rebateOpt: true, priceOpt: true, dealOpt: true, networkOpt: true, rebateMgmt: false, priceMgmt: false, quoteMgmt: false, autoNeg: false },
+          flows: [
+            { persona: 'commercialDirector', steps: [
+              { type: 'opt', action: 'Defines their own strategy', detail: 'Instead of Edge recommending, user inputs their proposed changes (customers, products, channels, pricing, rebates)' },
+              { type: 'opt', action: 'Runs simulation', detail: 'Edge models the commercial impact across pricing and rebates' },
+              { type: 'opt', action: 'Reviews projected impact', detail: 'Sees changes to margins, volumes, rebate costs based on their strategy' },
+              { type: 'opt', action: 'Refines and re-runs scenarios', detail: 'Iterates until happy with the projected outcomes' },
+              { type: 'mgmt', action: 'Approves strategy changes', detail: 'Signs off on network changes' },
+              { type: 'mgmt', action: 'Routes changes to specialist teams', detail: 'Pricing impacts → Pricing Manager, Rebate impacts → Rebate Manager' },
+            ]},
+            { persona: 'rebateManager', steps: [
+              { type: 'mgmt', action: 'Receives rebate change requirements', detail: 'From network simulation - sees what rebate changes needed' },
+              { type: 'mgmt', action: 'Prepares rebate adjustments', detail: 'Finalizes rebate terms for their portion' },
+              { type: 'mgmt', action: 'Marks rebate portion ready', detail: 'Signs off - waiting for pricing team' },
+            ]},
+            { persona: 'pricingManager', steps: [
+              { type: 'mgmt', action: 'Receives pricing change requirements', detail: 'From network simulation - sees what pricing changes needed' },
+              { type: 'mgmt', action: 'Prepares pricing adjustments', detail: 'Finalizes pricing terms for their portion' },
+              { type: 'mgmt', action: 'Marks pricing portion ready', detail: 'Signs off - waiting for rebate team' },
+            ]},
+            { persona: 'commercialDirector', steps: [
+              { type: 'mgmt', action: 'Reviews consolidated deal', detail: 'Both teams have prepared their portions' },
+              { type: 'mgmt', action: 'Sends full commercial deal to supplier', detail: 'Complete deal package: pricing + rebates sent to supplier' },
+              { type: 'mgmt', action: 'Supplier accepts deal', detail: 'Supplier reviews and agrees to commercial terms' },
+            ]},
+            { persona: 'rebateManager', steps: [
+              { type: 'manual', action: 'Exports rebate agreement', detail: 'Downloads approved rebate terms' },
+              { type: 'external', action: 'Implements in Enable', detail: 'Rebate terms updated in Enable', system: 'enable' },
+            ]},
+            { persona: 'pricingManager', steps: [
+              { type: 'manual', action: 'Exports pricing changes', detail: 'Downloads approved pricing terms' },
+              { type: 'external', action: 'Implements in Flintfox', detail: 'Price rules updated in Flintfox', system: 'flintfox' },
+            ]}
+          ],
+          keyCapabilities: ['User-driven strategy input', 'What-if scenario modeling', 'Cross-domain impact analysis', 'Consolidated deal sent to supplier', 'Strategy-to-execution handoff'],
+          manualHandoff: 'After supplier accepts, changes flow to Enable (rebates) and Flintfox (pricing)',
+          note: 'User-driven mode: Commercial Director defines the strategy, Edge shows the impact'
+        },
+        'q3-2026': {
+          title: '+ Rebate Management', subtitle: 'Edge becomes the rebate system of record',
+          layers: { rebateOpt: true, priceOpt: true, dealOpt: true, networkOpt: true, rebateMgmt: true, priceMgmt: false, quoteMgmt: false, autoNeg: false },
+          flows: [
+            { persona: 'commercialDirector', steps: [
+              { type: 'opt', action: 'Reviews unified deal recommendations', detail: 'Edge optimizes price + rebates together' },
+              { type: 'opt', action: 'Sees total deal economics', detail: 'Net price, rebate cost, true margin view' },
+              { type: 'mgmt', action: 'Routes to specialist teams', detail: 'Pricing portion → Pricing team, Rebate portion → Rebate team' },
+            ]},
+            { persona: 'rebateManager', steps: [
+              { type: 'mgmt', action: 'Reviews rebate portion of deal', detail: 'Sees recommendation in context of full deal' },
+              { type: 'mgmt', action: 'Prepares rebate changes', detail: 'Finalizes rebate terms for their portion' },
+              { type: 'mgmt', action: 'Marks rebate portion ready', detail: 'Signs off - waiting for pricing team' },
+            ]},
+            { persona: 'pricingManager', steps: [
+              { type: 'mgmt', action: 'Reviews pricing portion of deal', detail: 'Sees recommendation in context of full deal' },
+              { type: 'mgmt', action: 'Prepares pricing changes', detail: 'Finalizes pricing terms for their portion' },
+              { type: 'mgmt', action: 'Marks pricing portion ready', detail: 'Signs off - waiting for rebate team' },
+            ]},
+            { persona: 'commercialDirector', steps: [
+              { type: 'mgmt', action: 'Reviews consolidated deal', detail: 'Both teams have prepared their portions' },
+              { type: 'mgmt', action: 'Sends full commercial deal to supplier', detail: 'Complete deal package: pricing + rebates sent to supplier' },
+              { type: 'mgmt', action: 'Supplier accepts deal', detail: 'Supplier reviews and agrees to commercial terms' },
+            ]},
+            { persona: 'rebateManager', steps: [
+              { type: 'mgmt', action: 'Activates rebate agreement in Edge', detail: '🎉 No export needed - Edge IS the rebate system now' },
+              { type: 'mgmt', action: 'Transactions tracked automatically', detail: 'Sales data flows in, progress tracked' },
+              { type: 'mgmt', action: 'Accruals calculated automatically', detail: 'Real-time exposure visibility' },
+              { type: 'opt', action: 'Continuous learning', detail: 'Actuals feed back, models improve automatically' },
+            ]},
+            { persona: 'financeController', steps: [
+              { type: 'mgmt', action: 'Reviews accrual estimates', detail: 'Real-time visibility into rebate exposure' },
+              { type: 'mgmt', action: 'Processes claims', detail: 'Claims workflow in Edge' },
+              { type: 'mgmt', action: 'Reconciliation & reporting', detail: 'Full audit trail in one system' },
+            ]},
+            { persona: 'pricingManager', steps: [
+              { type: 'manual', action: 'Exports pricing changes', detail: 'Downloads approved pricing terms' },
+              { type: 'external', action: 'Implements in Flintfox', detail: 'Price rules updated in Flintfox', system: 'flintfox' },
+            ]}
+          ],
+          keyCapabilities: ['Full rebate lifecycle management', 'Automatic agreement activation', 'Transaction tracking', 'Accruals & claims processing', 'Consolidated deal sent to supplier', 'Closed-loop learning for rebates'],
+          manualHandoff: 'Pricing still exported to Flintfox after supplier accepts',
+          highlight: '🔄 First closed loop! Rebate data stays in Edge, enabling faster model improvement'
+        },
+        'q4-2026': {
+          title: '+ Price Management', subtitle: 'Edge becomes the pricing system of record',
+          layers: { rebateOpt: true, priceOpt: true, dealOpt: true, networkOpt: true, rebateMgmt: true, priceMgmt: true, quoteMgmt: false, autoNeg: false },
+          flows: [
+            { persona: 'commercialDirector', steps: [
+              { type: 'opt', action: 'Reviews unified deal recommendations', detail: 'Full deal optimization - price + rebates' },
+              { type: 'mgmt', action: 'Routes to specialist teams', detail: 'Both portions now stay in Edge!' },
+              { type: 'opt', action: 'Monitors total commercial performance', detail: 'Unified dashboards across both domains' },
+            ]},
+            { persona: 'pricingManager', steps: [
+              { type: 'opt', action: 'Reviews pricing recommendations', detail: 'AI-suggested price changes' },
+              { type: 'opt', action: 'Runs scenario modeling', detail: 'Tests impact on margin/volume' },
+              { type: 'mgmt', action: 'Submits for approval', detail: 'Pricing approval workflow' },
+              { type: 'mgmt', action: 'Prices go live in Edge', detail: '🎉 No manual export - Edge manages list prices' },
+              { type: 'mgmt', action: 'Customer agreements managed', detail: 'Customer-specific pricing maintained in Edge' },
+              { type: 'opt', action: 'Continuous learning', detail: 'Transaction data feeds back, models improve' },
+            ]},
+            { persona: 'rebateManager', steps: [
+              { type: 'opt', action: 'Reviews rebate recommendations', detail: 'Sees in context of full deal' },
+              { type: 'mgmt', action: 'Approves & activates in Edge', detail: 'Full rebate lifecycle in Edge' },
+              { type: 'opt', action: 'Monitors program performance', detail: 'Real-time tracking & learning' },
+            ]},
+            { persona: 'financeController', steps: [
+              { type: 'mgmt', action: 'Unified financial view', detail: 'Both rebate and pricing exposure in one place' },
+              { type: 'mgmt', action: 'Claims & reconciliation', detail: 'Full audit trail' },
+            ]}
+          ],
+          keyCapabilities: ['Full price lifecycle management', 'List price management', 'Customer-specific pricing agreements', 'Closed-loop learning for pricing', 'Unified commercial data'],
+          highlight: '🔄 Both loops closed! Full deal optimization with execution in one platform',
+          note: 'Sales reps still quote in external CPQ - Edge provides the pricing/rebate data'
+        },
+        'q1-2027': {
+          title: '+ Quote Management & Optimization', subtitle: 'Edge becomes the deal desk - full quote-to-cash intelligence',
+          layers: { rebateOpt: true, priceOpt: true, dealOpt: true, networkOpt: true, rebateMgmt: true, priceMgmt: true, quoteMgmt: true, autoNeg: false },
+          flows: [
+            { persona: 'salesRep', steps: [
+              { type: 'mgmt', action: 'Configures quote in Edge', detail: 'Selects customer, products, quantities' },
+              { type: 'mgmt', action: 'Prices & rebates auto-applied', detail: 'Customer agreements pulled automatically' },
+              { type: 'opt', action: 'Receives deal guidance', detail: '🎯 Edge recommends optimal discount/structure to win' },
+              { type: 'mgmt', action: 'Adjusts quote based on guidance', detail: 'Can accept, modify, or override recommendations' },
+              { type: 'mgmt', action: 'Submits for approval', detail: 'Routes based on discount level/deal risk' },
+              { type: 'mgmt', action: 'Quote sent to customer', detail: 'Generates quote document' },
+              { type: 'mgmt', action: 'Win/loss captured', detail: 'Outcome tracked for learning' },
+              { type: 'opt', action: 'Models learn from outcome', detail: 'Win/loss feeds back to improve guidance' },
+            ]},
+            { persona: 'commercialDirector', steps: [
+              { type: 'opt', action: 'Sets strategy & guardrails', detail: 'Defines optimization objectives, deal constraints' },
+              { type: 'mgmt', action: 'Reviews high-value deals', detail: 'Approves complex/large quotes' },
+              { type: 'opt', action: 'Monitors full commercial funnel', detail: 'From deal design → quote → win → execution' },
+            ]},
+            { persona: 'pricingManager', steps: [
+              { type: 'opt', action: 'Reviews pricing performance', detail: 'Sees how prices perform in actual quotes' },
+              { type: 'mgmt', action: 'Maintains pricing rules', detail: 'Updates based on market/performance' },
+              { type: 'mgmt', action: 'Approves pricing exceptions', detail: 'Reviews quotes outside guardrails' },
+            ]},
+            { persona: 'rebateManager', steps: [
+              { type: 'opt', action: 'Reviews rebate performance', detail: 'Sees how programs perform in deals' },
+              { type: 'mgmt', action: 'Maintains rebate programs', detail: 'Updates based on performance' },
+              { type: 'mgmt', action: 'Approves rebate exceptions', detail: 'Reviews special rebate requests' },
+            ]}
+          ],
+          keyCapabilities: ['Full quote configuration', 'Real-time deal guidance for sales', 'Quote approval workflows', 'Win/loss tracking', 'All three flows closed-loop', 'Complete quote-to-cash visibility'],
+          highlight: '🚀 Complete platform - all three flows (Rebate, Pricing, Quoting) running in Edge with continuous learning',
+          openQuestion: 'SPA optimization at quote time - recommend SPAs vs base rebates?'
+        },
+        'q2-2027': {
+          title: 'Autonomous Negotiations', subtitle: 'AI negotiates deals on behalf of users',
+          layers: { rebateOpt: true, priceOpt: true, dealOpt: true, networkOpt: true, rebateMgmt: true, priceMgmt: true, quoteMgmt: true, autoNeg: true },
+          flows: [
+            { persona: 'commercialDirector', steps: [
+              { type: 'opt', action: 'Defines negotiation parameters', detail: 'Sets boundaries, objectives, walk-away points' },
+              { type: 'opt', action: 'Approves AI negotiation scope', detail: 'Determines which deals AI can handle autonomously' },
+              { type: 'opt', action: 'Monitors AI negotiations', detail: 'Oversees autonomous deal-making' },
+              { type: 'mgmt', action: 'Reviews edge cases', detail: 'Steps in for deals outside AI parameters' },
+            ]},
+            { persona: 'salesRep', steps: [
+              { type: 'opt', action: 'AI handles routine negotiations', detail: '🤖 Edge negotiates pricing/rebates with customers autonomously' },
+              { type: 'mgmt', action: 'Reviews AI-negotiated deals', detail: 'Can accept or escalate' },
+              { type: 'mgmt', action: 'Handles complex relationships', detail: 'Focuses on strategic accounts requiring human touch' },
+            ]},
+            { persona: 'pricingManager', steps: [
+              { type: 'opt', action: 'Sets pricing guardrails for AI', detail: 'Defines acceptable ranges for autonomous negotiation' },
+              { type: 'opt', action: 'Reviews AI pricing decisions', detail: 'Monitors for patterns, adjusts parameters' },
+            ]},
+            { persona: 'rebateManager', steps: [
+              { type: 'opt', action: 'Sets rebate guardrails for AI', detail: 'Defines acceptable program structures for autonomous deals' },
+              { type: 'opt', action: 'Reviews AI rebate decisions', detail: 'Monitors for patterns, adjusts parameters' },
+            ]}
+          ],
+          keyCapabilities: ['AI-powered deal negotiation', 'Autonomous pricing decisions', 'Autonomous rebate structuring', 'Human-in-the-loop for edge cases', 'Continuous learning from outcomes'],
+          highlight: '🤖 Platform now negotiates deals on behalf of users within defined guardrails',
+          note: 'Humans set strategy and guardrails, AI executes routine negotiations'
+        }
+      };
+
+      const currentRelease = workflows[activeRelease];
+      const releaseIndex = releases.findIndex(r => r.id === activeRelease);
+
+      const getPersonaColor = (color) => {
+        const colors = {
+          blue: 'bg-blue-100 border-blue-300 hover:bg-blue-200',
+          green: 'bg-green-100 border-green-300 hover:bg-green-200',
+          purple: 'bg-purple-100 border-purple-300 hover:bg-purple-200',
+          amber: 'bg-amber-100 border-amber-300 hover:bg-amber-200',
+          slate: 'bg-slate-100 border-slate-300 hover:bg-slate-200',
+        };
+        return colors[color] || colors.slate;
+      };
+
+      const isPersonaActive = (persona) => {
+        const checkReleases = ['q3-2025', 'q1-2026', 'q2-2026', 'q3-2026', 'q4-2026', 'q1-2027', 'q2-2027'];
+        const currentIdx = checkReleases.indexOf(activeRelease === 'q3-2026-net' ? 'q3-2026' : activeRelease);
+        const personaIdx = checkReleases.indexOf(persona.activeFrom);
+        return currentIdx >= personaIdx;
+      };
+
+      const layerLabels = [
+        { key: 'rebateOpt', label: 'Rebate Opt', color: 'amber' },
+        { key: 'priceOpt', label: 'Price Opt', color: 'amber' },
+        { key: 'dealOpt', label: 'Trade Agmt Opt', color: 'purple' },
+        { key: 'networkOpt', label: 'Strategy Sim', color: 'indigo' },
+        { key: 'rebateMgmt', label: 'Rebate Mgmt', color: 'teal' },
+        { key: 'priceMgmt', label: 'Price Mgmt', color: 'teal' },
+        { key: 'quoteMgmt', label: 'Quote Mgmt', color: 'teal' },
+        { key: 'autoNeg', label: 'Auto Negotiate', color: 'rose' },
+      ];
+
+      return (
+        <div className="p-4 bg-gray-50 min-h-screen text-sm">
+          <h1 className="text-xl font-bold text-center text-gray-800 mb-1">Edge: Personas & Workflow Evolution</h1>
+          <p className="text-center text-gray-500 text-xs mb-4">How each persona's experience evolves across releases</p>
+
+          <div className="flex justify-center mb-4 overflow-x-auto pb-2">
+            <div className="flex gap-1 flex-wrap justify-center">
+              {releases.map((release) => (
+                <button key={release.id} onClick={() => setActiveRelease(release.id)}
+                  className={`px-2 py-2 rounded-lg text-xs font-medium transition-all min-w-20 ${activeRelease === release.id ? `${release.color} text-white shadow-md` : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'}`}>
+                  <div className="font-bold">{release.label}</div>
+                  <div className="text-xs opacity-80 leading-tight">{release.name}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex justify-center gap-4 mb-3 text-xs flex-wrap">
+            <div className="flex items-center gap-1">
+              <span className="px-2 py-0.5 rounded bg-slate-800 text-white text-xs font-medium">Edge</span>
+              <span>Edge Platform</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <span className="px-2 py-0.5 rounded bg-green-600 text-white text-xs font-bold">Enable</span>
+              <span>Rebate Execution</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <span className="px-2 py-0.5 rounded bg-blue-600 text-white text-xs font-bold">Flintfox</span>
+              <span>Price Execution</span>
+            </div>
+          </div>
+
+          <div className="flex justify-center gap-1 mb-4 flex-wrap">
+            {layerLabels.map(layer => (
+              <span key={layer.key}
+                className={`px-2 py-1 rounded text-xs ${currentRelease.layers[layer.key] 
+                  ? layer.color === 'amber' ? 'bg-amber-200 text-amber-800' 
+                    : layer.color === 'purple' ? 'bg-purple-200 text-purple-800'
+                    : layer.color === 'indigo' ? 'bg-indigo-200 text-indigo-800'
+                    : layer.color === 'rose' ? 'bg-rose-200 text-rose-800'
+                    : 'bg-teal-200 text-teal-800'
+                  : 'bg-gray-200 text-gray-400'}`}>
+                {layer.label} {currentRelease.layers[layer.key] ? '✓' : '○'}
+              </span>
+            ))}
+          </div>
+
+          <div className="max-w-4xl mx-auto mb-4">
+            <div className="bg-white rounded-xl p-4 shadow-sm">
+              <h2 className="font-bold text-lg text-gray-800">{currentRelease.title}</h2>
+              <p className="text-gray-500 text-xs mb-3">{currentRelease.subtitle}</p>
+              
+              {currentRelease.highlight && (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-2 mb-3 text-xs text-green-800">{currentRelease.highlight}</div>
+              )}
+              {currentRelease.note && (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-2 mb-3 text-xs text-blue-800">ℹ️ {currentRelease.note}</div>
+              )}
+              <div className="mb-3">
+                <h3 className="font-semibold text-xs text-gray-600 mb-1">Key Capabilities:</h3>
+                <div className="flex flex-wrap gap-1">
+                  {currentRelease.keyCapabilities.map((cap, i) => (
+                    <span key={i} className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-xs">{cap}</span>
+                  ))}
+                </div>
+              </div>
+              {currentRelease.manualHandoff && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-2 text-xs text-red-800">⚠️ Manual Handoff: {currentRelease.manualHandoff}</div>
+              )}
+              {currentRelease.openQuestion && (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-2 mt-2 text-xs text-yellow-800">❓ Open Question: {currentRelease.openQuestion}</div>
+              )}
+            </div>
+          </div>
+
+          <div className="max-w-4xl mx-auto mb-4">
+            <h3 className="font-semibold text-gray-700 mb-2">Active Personas in {releases.find(r => r.id === activeRelease)?.label}:</h3>
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
+              {Object.values(personas).map(persona => {
+                const active = isPersonaActive(persona);
+                return (
+                  <button key={persona.id} onClick={() => active && setActivePersona(activePersona === persona.id ? null : persona.id)}
+                    className={`p-2 rounded-lg border-2 text-center transition-all ${active ? `${getPersonaColor(persona.color)} cursor-pointer ${activePersona === persona.id ? 'ring-2 ring-offset-1 ring-gray-400' : ''}` : 'bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed opacity-50'}`}>
+                    <div className="text-xl">{persona.icon}</div>
+                    <div className="text-xs font-medium">{persona.title}</div>
+                    {!active && <div className="text-xs opacity-60">From {releases.find(r => r.id === persona.activeFrom)?.label}</div>}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {activePersona && (
+            <div className="max-w-4xl mx-auto mb-4">
+              <div className={`rounded-xl p-4 border-2 ${getPersonaColor(personas[activePersona].color)}`}>
+                <div className="flex items-start gap-3">
+                  <div className="text-3xl">{personas[activePersona].icon}</div>
+                  <div className="flex-1">
+                    <h3 className="font-bold text-gray-800">{personas[activePersona].title}</h3>
+                    <p className="text-xs text-gray-500 italic mb-2">aka: {personas[activePersona].aka}</p>
+                    <p className="text-xs text-gray-700 mb-2">{personas[activePersona].description}</p>
+                    <div className="grid md:grid-cols-2 gap-3">
+                      <div>
+                        <h4 className="font-semibold text-xs text-red-700 mb-1">Pain Points:</h4>
+                        <ul className="text-xs text-gray-600 space-y-1">
+                          {personas[activePersona].painPoints.map((p, i) => <li key={i}>• {p}</li>)}
+                        </ul>
+                      </div>
+                      <div>
+                        <h4 className="font-semibold text-xs text-green-700 mb-1">Goals:</h4>
+                        <ul className="text-xs text-gray-600 space-y-1">
+                          {personas[activePersona].goals.map((g, i) => <li key={i}>• {g}</li>)}
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="max-w-4xl mx-auto">
+            <h3 className="font-semibold text-gray-700 mb-2">Workflows:</h3>
+            <div className="space-y-4">
+              {currentRelease.flows.map((flow, flowIdx) => {
+                const persona = personas[flow.persona];
+                return (
+                  <div key={flowIdx} className="bg-white rounded-xl p-4 shadow-sm">
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="text-xl">{persona.icon}</span>
+                      <span className="font-semibold text-gray-800">{persona.title} Workflow</span>
+                    </div>
+                    <div className="space-y-2">
+                      {flow.steps.map((step, stepIdx) => (
+                        <div key={stepIdx} className="flex items-start gap-2">
+                          <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold border-2 flex-shrink-0 ${
+                            step.system 
+                              ? step.system === 'enable' ? 'bg-green-100 border-green-500 text-green-800' : 'bg-blue-100 border-blue-500 text-blue-800'
+                              : 'bg-slate-100 border-slate-400 text-slate-800'
+                          }`}>
+                            {stepIdx + 1}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium text-gray-800 text-xs">{step.action}</div>
+                            <div className="text-gray-500 text-xs">{step.detail}</div>
+                          </div>
+                          <div className="flex items-center gap-1 flex-shrink-0">
+                            {step.system ? (
+                              <span className={`px-2 py-0.5 rounded text-xs font-bold ${step.system === 'enable' ? 'bg-green-600 text-white' : 'bg-blue-600 text-white'}`}>
+                                {step.system === 'enable' ? 'Enable' : 'Flintfox'}
+                              </span>
+                            ) : (
+                              <span className="px-2 py-0.5 rounded text-xs bg-slate-800 text-white font-medium">Edge</span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<EdgePersonasWorkflow />);
+  </script>
+</body>
+</html>
